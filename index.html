@@ -157,6 +157,48 @@
         const mobileMenuItems = document.querySelectorAll('.mobile-menu-item');
         const navItems = document.querySelectorAll('.nav-item');
         
+        // Smooth scroll function with enhanced easing
+        function smoothScrollTo(targetElement) {
+            const startPosition = window.pageYOffset;
+            const targetPosition = targetElement.offsetTop;
+            const distance = targetPosition - startPosition;
+            const duration = 1200; // Increased duration for smoother animation
+            let start = null;
+            
+            // Enhanced easing function for smoother motion
+            function easeInOutCubic(t) {
+                return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+            }
+            
+            function animation(currentTime) {
+                if (start === null) start = currentTime;
+                const timeElapsed = currentTime - start;
+                const progress = Math.min(timeElapsed / duration, 1);
+                const ease = easeInOutCubic(progress);
+                
+                window.scrollTo(0, startPosition + (distance * ease));
+                
+                if (timeElapsed < duration) {
+                    requestAnimationFrame(animation);
+                } else {
+                    // Add active class for entrance animation
+                    sections.forEach(section => section.classList.remove('active', 'entering'));
+                    targetElement.classList.add('active');
+                }
+            }
+            
+            // Add entering class to start animation
+            sections.forEach(section => section.classList.remove('active', 'entering'));
+            targetElement.classList.add('entering');
+            
+            requestAnimationFrame(animation);
+        }
+        
+        // Initialize first section as active
+        if (sections.length > 0) {
+            sections[0].classList.add('active');
+        }
+        
         // Burger menu functionality
         burgerMenu.addEventListener('click', () => {
             burgerMenu.classList.toggle('active');
@@ -167,7 +209,7 @@
         mobileMenuItems.forEach((item, index) => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
-                sections[index].scrollIntoView({ behavior: 'smooth' });
+                smoothScrollTo(sections[index]);
                 burgerMenu.classList.remove('active');
                 mobileMenu.classList.remove('active');
             });
@@ -178,9 +220,26 @@
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 const sectionIndex = parseInt(item.dataset.section);
-                sections[sectionIndex].scrollIntoView({ behavior: 'smooth' });
+                smoothScrollTo(sections[sectionIndex]);
             });
         });
+        
+        // Intersection Observer for section visibility
+        const observerOptions = {
+            threshold: 0.7,
+            rootMargin: '0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    sections.forEach(section => section.classList.remove('active'));
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+        
+        sections.forEach(section => observer.observe(section));
     </script>
 </body>
 </html>

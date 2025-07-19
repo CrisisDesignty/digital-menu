@@ -13,6 +13,11 @@ body {
 
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: 0;
+}
+
+:root {
+    scroll-timeline: --section-scroll block;
 }
 
 .navigation {
@@ -195,6 +200,9 @@ html {
     align-items: flex-end;
     justify-content: center;
     position: relative;
+    transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform, opacity;
 }
 
 .dish-overlay {
@@ -219,6 +227,18 @@ html {
     padding: 40px;
     background: transparent;
     margin-bottom: 40px;
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    will-change: transform, opacity;
+}
+
+.dish-section.entering .dish-content {
+    opacity: 0;
+    transform: translateY(50px) scale(0.95);
+}
+
+.dish-section.active .dish-content {
+    opacity: 1;
+    transform: translateY(0) scale(1);
 }
 
 .dish-category {
